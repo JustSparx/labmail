@@ -55,7 +55,7 @@ class LabMailDB:
             
             # Create messages table
             cur.execute("""
-                CREATE TABLE IF NOT EXISTS labmail_messages (
+                CREATE TABLE IF NOT EXISTS labmailmessages (
                     id UUID PRIMARY KEY,
                     from_system VARCHAR(50) NOT NULL,
                     to_system VARCHAR(50) NOT NULL,
@@ -71,12 +71,12 @@ class LabMailDB:
             # Create index for efficient queries
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idx_labmail_to_system 
-                ON labmail_messages(to_system, is_read, created_at DESC);
+                ON labmailmessages(to_system, is_read, created_at DESC);
             """)
             
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idx_labmail_from_system 
-                ON labmail_messages(from_system, created_at DESC);
+                ON labmailmessages(from_system, created_at DESC);
             """)
             
             conn.commit()
@@ -104,7 +104,7 @@ class LabMailDB:
             cur = conn.cursor()
             
             cur.execute("""
-                INSERT INTO labmail_messages 
+                INSERT INTO labmailmessages 
                 (id, from_system, to_system, subject, body, priority)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (message_id, self.hostname, recipient, subject, body, priority))
@@ -132,7 +132,7 @@ class LabMailDB:
             # Build query
             query = """
                 SELECT id, from_system, subject, priority, created_at, is_read
-                FROM labmail_messages 
+                FROM labmailmessages 
                 WHERE to_system = %s
             """
             params = [self.hostname]
@@ -189,7 +189,7 @@ class LabMailDB:
                 
                 # Find message by partial ID
                 cur.execute("""
-                    SELECT * FROM labmail_messages 
+                    SELECT * FROM labmailmessages 
                     WHERE to_system = %s AND CAST(id AS TEXT) LIKE %s
                     ORDER BY created_at DESC
                     LIMIT 1
@@ -205,7 +205,7 @@ class LabMailDB:
                 
                 # Mark as read
                 cur.execute("""
-                    UPDATE labmail_messages 
+                    UPDATE labmailmessages 
                     SET is_read = TRUE, read_at = NOW()
                     WHERE id = %s
                 """, (message['id'],))
@@ -252,7 +252,7 @@ class LabMailDB:
                 SELECT 
                     COUNT(*) as total,
                     COUNT(*) FILTER (WHERE is_read = FALSE) as unread
-                FROM labmail_messages 
+                FROM labmailmessages 
                 WHERE to_system = %s
             """, (self.hostname,))
             
@@ -290,14 +290,14 @@ class LabMailDB:
             print("=" * 40)
             
             # Total messages in system
-            cur.execute("SELECT COUNT(*) FROM labmail_messages")
+            cur.execute("SELECT COUNT(*) FROM labmailmessages")
             total = cur.fetchone()[0]
             print(f"📧 Total messages in system: {total}")
             
             # Messages by sender
             cur.execute("""
                 SELECT from_system, COUNT(*) as count
-                FROM labmail_messages 
+                FROM labmailmessages 
                 GROUP BY from_system 
                 ORDER BY count DESC
             """)
@@ -309,7 +309,7 @@ class LabMailDB:
             # Messages by recipient
             cur.execute("""
                 SELECT to_system, COUNT(*) as count
-                FROM labmail_messages 
+                FROM labmailmessages 
                 GROUP BY to_system 
                 ORDER BY count DESC
             """)
@@ -321,7 +321,7 @@ class LabMailDB:
             # Unread messages by system
             cur.execute("""
                 SELECT to_system, COUNT(*) as unread
-                FROM labmail_messages 
+                FROM labmailmessages 
                 WHERE is_read = FALSE
                 GROUP BY to_system 
                 ORDER BY unread DESC
