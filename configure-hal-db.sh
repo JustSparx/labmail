@@ -84,6 +84,11 @@ else
     exit 1
 fi
 
+# Grant schema privileges to hal_admin for LabMail tables
+echo "🔐 Granting schema privileges to hal_admin..."
+sudo -u postgres psql -d hal_main -c "GRANT CREATE ON SCHEMA public TO hal_admin;"
+sudo -u postgres psql -d hal_main -c "GRANT USAGE ON SCHEMA public TO hal_admin;"
+
 # Test hal_admin user connection
 echo "👤 Testing hal_admin user connection..."
 if PGPASSWORD='hal_admin_password' psql -h localhost -U hal_admin -d hal_main -c "SELECT 'hal_admin connection successful!' as status;" >/dev/null; then
