@@ -26,9 +26,12 @@ for member in edgar-dev skynet-prod hal-db coder; do
     echo "   ✅ $member inbox created"
 done
 
-# Set proper ownership
-echo "🔧 Setting directory ownership..."
-$SUDO_CMD chown -R $USER:$USER /var/lib/labmail
+# Set proper ownership and permissions for multi-system access
+echo "🔧 Setting directory ownership and permissions..."
+$SUDO_CMD chown -R sparx:sparx /var/lib/labmail
+$SUDO_CMD chmod -R 755 /var/lib/labmail
+$SUDO_CMD chmod -R 777 /var/lib/labmail/inbox
+$SUDO_CMD chmod -R 777 /var/lib/labmail/sent
 
 # Install LabMail CLI
 echo "📦 Installing LabMail CLI..."
