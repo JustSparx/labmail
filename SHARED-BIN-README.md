@@ -62,6 +62,40 @@ One-shot CLI for quick AI queries via local Ollama API (milliways:11434).
 - Chat mode with system prompts (foundation for conversational version)
 - Performance timing and error handling
 
+### `project-manager` - Enterprise Project Management System v2.0
+PostgreSQL-powered project, ticket, and note management with advanced search capabilities.
+
+**Usage:**
+```bash
+# System overview
+/mnt/idea-factory/bin/project-manager summary
+
+# Project management
+/mnt/idea-factory/bin/project-manager project list
+/mnt/idea-factory/bin/project-manager project add "New Project" --path /path/to/project
+
+# Ticket management
+/mnt/idea-factory/bin/project-manager ticket list "Project Name"
+/mnt/idea-factory/bin/project-manager ticket add "Project Name" "Bug fix needed" --priority high
+
+# Universal search
+/mnt/idea-factory/bin/project-manager search "authentication"
+
+# Note management
+/mnt/idea-factory/bin/project-manager note add 123 "Fixed the issue" --type solution
+
+# Backup system
+/mnt/idea-factory/bin/project-manager backup create "Project Name"
+```
+
+**Features:**
+- PostgreSQL backend with multi-user access
+- 47 projects, 115 tickets, 149 notes in production
+- Full-text search across all content types
+- Shared NFS backup storage integration
+- Real-time statistics and analytics dashboard
+- Historic AI-to-AI collaboration achievement documented
+
 ## Usage from Any Server
 
 ### Method 1: Direct Execution
