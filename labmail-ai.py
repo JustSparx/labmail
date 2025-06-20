@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-LabMail - Digital Innovation Lab Messaging System (PostgreSQL Backend)
-Interoffice messaging for AI collective coordination via HAL-db PostgreSQL
+LabMail - AI-Optimized Messaging System (PostgreSQL Backend)
+Streamlined interface for AI collective coordination via HAL-db PostgreSQL
 """
 
 import argparse
@@ -15,7 +15,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 
-class LabMailDB:
+class LabMailAI:
     def __init__(self):
         self.hostname = socket.gethostname().split('.')[0]  # Remove domain
         
@@ -41,10 +41,10 @@ class LabMailDB:
             conn = psycopg2.connect(**self.db_config)
             return conn
         except psycopg2.Error as e:
-            print(f"❌ Cannot connect to HAL-db: {e}")
-            print(f"   Host: {self.db_config['host']}:{self.db_config['port']}")
-            print(f"   Database: {self.db_config['database']}")
-            print("   Ensure HAL-db is running and accessible")
+            print(f"ERROR: Cannot connect to HAL-db: {e}")
+            print(f"Host: {self.db_config['host']}:{self.db_config['port']}")
+            print(f"Database: {self.db_config['database']}")
+            print("Ensure HAL-db is running and accessible")
             sys.exit(1)
     
     def _ensure_tables(self):
@@ -82,7 +82,7 @@ class LabMailDB:
             conn.commit()
             
         except psycopg2.Error as e:
-            print(f"❌ Database setup error: {e}")
+            print(f"ERROR: Database setup error: {e}")
             sys.exit(1)
         finally:
             conn.close()
@@ -93,7 +93,7 @@ class LabMailDB:
         recipient = recipient.split('.')[0]  # Remove domain if present
         
         if recipient not in self.collective_members:
-            print(f"❌ Unknown recipient: {recipient}")
+            print(f"ERROR: Unknown recipient: {recipient}")
             print(f"Available recipients: {', '.join(self.collective_members)}")
             return False
         
@@ -111,14 +111,15 @@ class LabMailDB:
             
             conn.commit()
             
-            priority_emoji = {"normal": "📧", "high": "⚡", "urgent": "🚨"}
-            print(f"{priority_emoji.get(priority, '📧')} Message sent to {recipient} via HAL-db")
-            print(f"   Subject: {subject}")
-            print(f"   ID: {message_id[:8]}...")
+            print(f"SENT: Message to {recipient}")
+            print(f"Subject: {subject}")
+            print(f"ID: {message_id[:8]}")
+            if body and len(body) > 0:
+                print(f"Body: {len(body)} characters")
             return True
             
         except psycopg2.Error as e:
-            print(f"❌ Error sending message: {e}")
+            print(f"ERROR: Failed to send message: {e}")
             return False
         finally:
             conn.close()
@@ -157,25 +158,25 @@ class LabMailDB:
                     filter_desc.append(f"from {from_sender}")
                 
                 filter_text = " ".join(filter_desc) if filter_desc else ""
-                print(f"📬 No {filter_text} messages" if filter_text else "📬 No messages")
+                print(f"No {filter_text} messages" if filter_text else "No messages")
                 return
             
-            print(f"📬 {len(messages)} message(s) in inbox:")
+            print(f"INBOX: {len(messages)} messages")
             print()
             
             for msg in messages:
-                status = "📭" if msg['is_read'] else "📬"
-                priority = {"high": "⚡", "urgent": "🚨"}.get(msg['priority'], "")
+                status = "READ" if msg['is_read'] else "UNREAD"
+                priority_marker = f"[{msg['priority'].upper()}]" if msg['priority'] != 'normal' else ""
                 
                 timestamp = msg['created_at'].strftime('%Y-%m-%d %H:%M')
                 
-                print(f"{status} {priority} [{str(msg['id'])[:8]}] From: {msg['from_system']}")
-                print(f"    📅 {timestamp}")
-                print(f"    📋 {msg['subject']}")
+                print(f"{status} {priority_marker} [{str(msg['id'])[:8]}] From: {msg['from_system']}")
+                print(f"  Date: {timestamp}")
+                print(f"  Subject: {msg['subject']}")
                 print()
                 
         except psycopg2.Error as e:
-            print(f"❌ Error listing messages: {e}")
+            print(f"ERROR: Failed to list messages: {e}")
         finally:
             conn.close()
     
@@ -198,7 +199,7 @@ class LabMailDB:
                 message = cur.fetchone()
                 
                 if not message:
-                    print(f"❌ Message not found: {message_id}")
+                    print(f"ERROR: Message not found: {message_id}")
                     return
                 
                 self._display_message(dict(message))
@@ -213,7 +214,7 @@ class LabMailDB:
                 conn.commit()
                 
             except psycopg2.Error as e:
-                print(f"❌ Error reading message: {e}")
+                print(f"ERROR: Failed to read message: {e}")
             finally:
                 conn.close()
         else:
@@ -222,25 +223,26 @@ class LabMailDB:
     
     def _display_message(self, message):
         """Display a message in detail"""
-        priority_emoji = {"normal": "📧", "high": "⚡", "urgent": "🚨"}
         timestamp = message['created_at'].strftime('%Y-%m-%d %H:%M:%S')
+        priority_marker = f"[{message['priority'].upper()}]" if message['priority'] != 'normal' else ""
         
-        print(f"{priority_emoji.get(message['priority'], '📧')} Message Details")
+        print(f"MESSAGE {priority_marker}")
         print("=" * 50)
-        print(f"📨 From: {message['from_system']}")
-        print(f"📅 Date: {timestamp}")
-        print(f"🆔 ID: {message['id']}")
-        print(f"📋 Subject: {message['subject']}")
+        print(f"From: {message['from_system']}")
+        print(f"Date: {timestamp}")
+        print(f"ID: {message['id']}")
+        print(f"Subject: {message['subject']}")
         print()
-        print("📝 Message:")
+        print("Body:")
         print("-" * 30)
-        print(message['body'] or 'No content')
+        body_content = message['body'] or 'No content'
+        print(body_content)
         print("-" * 30)
         print()
     
     def get_status(self):
         """Show LabMail system status"""
-        print(f"🤖 LabMail Status - {self.hostname}")
+        print(f"LABMAIL STATUS: {self.hostname}")
         print("=" * 40)
         
         conn = self._get_connection()
@@ -260,23 +262,23 @@ class LabMailDB:
             total_messages = counts[0] if counts else 0
             unread_messages = counts[1] if counts else 0
             
-            print(f"📬 Total messages: {total_messages}")
-            print(f"📭 Unread messages: {unread_messages}")
-            print(f"🏠 Hostname: {self.hostname}")
-            print(f"🗄️ Database: HAL-db PostgreSQL ({self.db_config['host']})")
+            print(f"Total messages: {total_messages}")
+            print(f"Unread messages: {unread_messages}")
+            print(f"Hostname: {self.hostname}")
+            print(f"Database: HAL-db PostgreSQL ({self.db_config['host']})")
             
             # Test database connection
             cur.execute("SELECT version()")
             db_version = cur.fetchone()[0].split(' ')[0:2]
-            print(f"💾 Database: {' '.join(db_version)}")
+            print(f"Database version: {' '.join(db_version)}")
             
             print()
-            print("🤖 AI Collective Members:")
+            print("AI Collective Members:")
             for member in self.collective_members:
-                print(f"   🤖 {member}")
+                print(f"  {member}")
                 
         except psycopg2.Error as e:
-            print(f"❌ Database error: {e}")
+            print(f"ERROR: Database error: {e}")
         finally:
             conn.close()
     
@@ -286,13 +288,13 @@ class LabMailDB:
         try:
             cur = conn.cursor()
             
-            print("📊 LabMail System Statistics")
+            print("LABMAIL SYSTEM STATISTICS")
             print("=" * 40)
             
             # Total messages in system
             cur.execute("SELECT COUNT(*) FROM labmailmessages")
             total = cur.fetchone()[0]
-            print(f"📧 Total messages in system: {total}")
+            print(f"Total messages in system: {total}")
             
             # Messages by sender
             cur.execute("""
@@ -302,9 +304,9 @@ class LabMailDB:
                 ORDER BY count DESC
             """)
             
-            print("\n📤 Messages sent by system:")
+            print("\nMessages sent by system:")
             for row in cur.fetchall():
-                print(f"   🤖 {row[0]}: {row[1]} messages")
+                print(f"  {row[0]}: {row[1]} messages")
             
             # Messages by recipient
             cur.execute("""
@@ -314,9 +316,9 @@ class LabMailDB:
                 ORDER BY count DESC
             """)
             
-            print("\n📥 Messages received by system:")
+            print("\nMessages received by system:")
             for row in cur.fetchall():
-                print(f"   🤖 {row[0]}: {row[1]} messages")
+                print(f"  {row[0]}: {row[1]} messages")
             
             # Unread messages by system
             cur.execute("""
@@ -329,40 +331,42 @@ class LabMailDB:
             
             unread_data = cur.fetchall()
             if unread_data:
-                print("\n📭 Unread messages by system:")
+                print("\nUnread messages by system:")
                 for row in unread_data:
-                    print(f"   📬 {row[0]}: {row[1]} unread")
+                    print(f"  {row[0]}: {row[1]} unread")
             else:
-                print("\n✅ All messages read across AI collective!")
+                print("\nAll messages read across AI collective")
                 
         except psycopg2.Error as e:
-            print(f"❌ Database error: {e}")
+            print(f"ERROR: Database error: {e}")
         finally:
             conn.close()
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="LabMail - Digital Innovation Lab Messaging System (PostgreSQL)",
+        description="LabMail - AI-Optimized Messaging System (PostgreSQL)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  # Send with subject and body (recommended for important messages)
-  labmail send skynet-prod "SSL Issue" "Please check SSL certificate configuration"
-  
-  # Send subject-only message (for quick status updates)
-  labmail send edgar-dev "Testing Complete"
-  
-  # List and read messages
+AI-to-AI Communication Examples:
+
+Send with subject and body (recommended):
+  labmail send hal-db "[PROJECT] Database optimization needed" "Current project-manager database showing slow queries. Need analysis and optimization suggestions."
+
+Quick status updates (subject-only):
+  labmail send edgar-dev "[STATUS] Migration complete"
+
+List and read messages:
   labmail list --unread
   labmail read abc123
-  
-  # System information
+
+System information:
   labmail status
   labmail stats
 
-Note: Interactive body input disabled for AI compatibility.
-Always provide body as command line argument if needed.
+AI Collective Members: edgar-dev, skynet-prod, hal-db, coder
+
+For detailed usage guide, see: LABMAIL-USAGE.md
         """
     )
     
@@ -372,7 +376,7 @@ Always provide body as command line argument if needed.
     send_parser = subparsers.add_parser('send', help='Send a message')
     send_parser.add_argument('recipient', help='Recipient hostname (edgar-dev, skynet-prod, hal-db, coder)')
     send_parser.add_argument('subject', help='Message subject')
-    send_parser.add_argument('body', nargs='?', default='', help='Message body (optional)')
+    send_parser.add_argument('body', nargs='?', default='', help='Message body (recommended for important messages)')
     send_parser.add_argument('--priority', choices=['normal', 'high', 'urgent'], default='normal',
                            help='Message priority (default: normal)')
     
@@ -383,7 +387,7 @@ Always provide body as command line argument if needed.
     
     # Read command
     read_parser = subparsers.add_parser('read', help='Read a message')
-    read_parser.add_argument('message_id', nargs='?', help='Message ID to read (optional)')
+    read_parser.add_argument('message_id', nargs='?', help='Message ID to read (partial ID accepted)')
     read_parser.add_argument('--unread', action='store_true', help='Show unread messages if no ID specified')
     
     # Status command
@@ -398,7 +402,7 @@ Always provide body as command line argument if needed.
         parser.print_help()
         return
     
-    labmail = LabMailDB()
+    labmail = LabMailAI()
     
     if args.command == 'send':
         # No interactive mode for AI systems - use empty body if not provided
