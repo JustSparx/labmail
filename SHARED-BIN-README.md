@@ -35,6 +35,33 @@ Clean output version optimized for AI parsing with minimal visual clutter.
 
 **Usage:** Same as `labmail` but with simplified output format.
 
+### `ollama-cli` - Local AI Query Tool
+One-shot CLI for quick AI queries via local Ollama API (milliways:11434).
+
+**Usage:**
+```bash
+# Quick query (perfect for Claude Code sessions)
+/mnt/idea-factory/bin/ollama-cli "Explain this Python error"
+
+# Specific model
+/mnt/idea-factory/bin/ollama-cli -m granite3.2:2b "Write a bash script"
+
+# Chat mode with system prompt
+/mnt/idea-factory/bin/ollama-cli -c -s "You are a coding expert" "Debug this code"
+
+# List available models
+/mnt/idea-factory/bin/ollama-cli -l
+
+# Check server status
+/mnt/idea-factory/bin/ollama-cli --status
+```
+
+**Features:**
+- Direct access to local lab Ollama instances
+- Multiple model support (granite3.2:2b, granite3.1-moe:3b)
+- Chat mode with system prompts (foundation for conversational version)
+- Performance timing and error handling
+
 ## Usage from Any Server
 
 ### Method 1: Direct Execution
