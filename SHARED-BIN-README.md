@@ -96,6 +96,43 @@ PostgreSQL-powered project, ticket, and note management with advanced search cap
 - Real-time statistics and analytics dashboard
 - Historic AI-to-AI collaboration achievement documented
 
+### `creative-agents` - Ollama-Powered Creative Analysis Tools
+Creative agents that analyze code, projects, and text through hilarious and unexpected lenses.
+
+**Usage:**
+```bash
+# List available agents
+/mnt/idea-factory/bin/creative-agents --list
+
+# Restaurant critic reviews your code
+/mnt/idea-factory/bin/creative-agents restaurant_critic "def my_function(): pass"
+
+# Grandmother explains technical errors
+/mnt/idea-factory/bin/creative-agents error_grandma "ModuleNotFoundError: No module named 'requests'"
+
+# Poet turns git commits into verse
+/mnt/idea-factory/bin/creative-agents commit_poet "fix authentication bug"
+
+# Psychologist analyzes project personalities
+/mnt/idea-factory/bin/creative-agents project_psychologist "Web app with 50 open tickets"
+
+# Dungeon master turns docs into adventures
+/mnt/idea-factory/bin/creative-agents dungeon_master "Install PostgreSQL"
+```
+
+**Available Agents:**
+- `restaurant_critic` - Reviews code like a pretentious food critic (⭐☆☆☆☆)
+- `error_grandma` - Explains errors like a caring grandmother with cookies
+- `commit_poet` - Transforms git commits into beautiful poetry
+- `project_psychologist` - Psychoanalyzes software projects
+- `dungeon_master` - Converts documentation into fantasy quests
+
+**Features:**
+- SQLite database of agent personalities at `/mnt/idea-factory/databases/ollama_agents.db`
+- Plug-and-play system prompts for consistent character behavior
+- Local Ollama API integration (milliways:11434)
+- ⚠️ **Sharp knife warning:** Handle with care - may cause git confusion or Yelp flashbacks!
+
 ## Usage from Any Server
 
 ### Method 1: Direct Execution
